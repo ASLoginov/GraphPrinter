@@ -7,22 +7,22 @@ MultiformatDTParser::MultiformatDTParser()
 
 void MultiformatDTParser::AddFormat(const QString& format)
 {
-    availableFormats.insert(format);
+    _availableFormats.insert(format);
 }
 
 void MultiformatDTParser::RemoveFormat(const QString& format)
 {
-    availableFormats.remove(format);
+    _availableFormats.remove(format);
 }
 
-void MultiformatDTParser::RemoveAllFormats()
+void MultiformatDTParser::ClearFormats()
 {
-    availableFormats.clear();
+    _availableFormats.clear();
 }
 
 QDateTime MultiformatDTParser::ParseDateTime(const QString& strDate)
 {
-    foreach (const QString& format, availableFormats) {
+    foreach (const QString& format, _availableFormats) {
         QDateTime dt = QDateTime::fromString(strDate, format);
         if (dt.isValid()) return dt;
     }

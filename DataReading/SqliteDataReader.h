@@ -2,7 +2,7 @@
 #define SQLITEDATAREADER_H
 
 #include "IDataReader.h"
-#include "IDateTimeParser.h"
+#include "DateParsing/IDateTimeParser.h"
 
 class SqliteDataReader : public IDataReader
 {
