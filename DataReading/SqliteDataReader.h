@@ -9,7 +9,7 @@ class SqliteDataReader : public IDataReader
     std::shared_ptr<IDateTimeParser> _parser;
 public:
     SqliteDataReader(std::shared_ptr<IDateTimeParser> parser);
-    std::shared_ptr<QMap<QDateTime, double>> ReadData(const QString& filePath);
+    std::shared_ptr<QVector<QPair<QDateTime, double>>> ReadData(const QString& filePath);
 };
 
 #endif // SQLITEDATAREADER_H

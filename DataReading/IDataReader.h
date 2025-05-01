@@ -9,7 +9,7 @@ class IDataReader
 {
 public:
     virtual ~IDataReader() {}
-    virtual std::shared_ptr<QMap<QDateTime, double>> ReadData(const QString& filePath) = 0;
+    virtual std::shared_ptr<QVector<QPair<QDateTime, double>>> ReadData(const QString& filePath) = 0;
 };
 
 #endif // IDATAREADER_H
