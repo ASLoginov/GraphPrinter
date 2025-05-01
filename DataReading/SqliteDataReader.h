@@ -2,15 +2,14 @@
 #define SQLITEDATAREADER_H
 
 #include "IDataReader.h"
+#include "IDateTimeParser.h"
 
 class SqliteDataReader : public IDataReader
 {
-    QString dateFormat = "YYYY-MM-DD";
+    std::shared_ptr<IDateTimeParser> _parser;
 public:
-    SqliteDataReader() = default;
-    SqliteDataReader(const QString& format);
-    std::shared_ptr<QMap<QDate, double>> ReadData(const QString& filePath);
-    void SetDateFormat(const QString& format);
+    SqliteDataReader(std::shared_ptr<IDateTimeParser> parser);
+    std::shared_ptr<QMap<QDateTime, double>> ReadData(const QString& filePath);
 };
 
 #endif // SQLITEDATAREADER_H

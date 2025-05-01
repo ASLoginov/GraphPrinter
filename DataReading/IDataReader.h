@@ -3,12 +3,13 @@
 
 #include <QtGlobal>
 #include <memory>
-#include <QDate>
+#include <QDateTime>
 
 class IDataReader
 {
+public:
     virtual ~IDataReader() {}
-    virtual std::shared_ptr<QMap<QDate, double>> ReadData(const QString& filePath) = 0;
+    virtual std::shared_ptr<QMap<QDateTime, double>> ReadData(const QString& filePath) = 0;
 };
 
 #endif // IDATAREADER_H
