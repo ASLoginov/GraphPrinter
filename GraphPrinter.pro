@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui sql charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,6 +13,9 @@ SOURCES += \
     DataReading/DateParsing/DateAndMinutesParser.cpp \
     DataReading/DateParsing/MultiformatDTParser.cpp \
     DataReading/SqliteDataReader.cpp \
+    DataRendering/ImpulseChartBuilder.cpp \
+    DataRendering/LineChartBuilder.cpp \
+    DataRendering/ScatterChartBuilder.cpp \
     DependencyInjection/IOC_Container.cpp \
     main.cpp \
     MainWindow.cpp
@@ -24,6 +27,10 @@ HEADERS += \
     DataReading/DateParsing/MultiformatDTParser.h \
     DataReading/IDataReader.h \
     DataReading/SqliteDataReader.h \
+    DataRendering/IChartBuilder.h \
+    DataRendering/ImpulseChartBuilder.h \
+    DataRendering/LineChartBuilder.h \
+    DataRendering/ScatterChartBuilder.h \
     DependencyInjection/IOC_Contaner.h \
     MainWindow.h
 

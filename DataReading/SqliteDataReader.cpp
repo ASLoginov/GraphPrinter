@@ -9,9 +9,9 @@ SqliteDataReader::SqliteDataReader(std::shared_ptr<IDateTimeParser> parser)
     _parser = parser;
 }
 
-std::shared_ptr<QVector<QPair<QDateTime, double>>> SqliteDataReader::ReadData(const QString& filePath)
+std::shared_ptr<QVector<QPair<QDateTime, qreal>>> SqliteDataReader::ReadData(const QString& filePath)
 {
-    auto result = std::make_shared<QVector<QPair<QDateTime, double>>>();
+    auto result = std::make_shared<QVector<QPair<QDateTime, qreal>>>();
 
     if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
         qWarning() << "SQLite driver is unavailable!";
@@ -39,7 +39,7 @@ std::shared_ptr<QVector<QPair<QDateTime, double>>> SqliteDataReader::ReadData(co
     while (query.next()) {
         QDateTime date = _parser->ParseDateTime(query.value(0).toString());
         bool ok;
-        double value = query.value(1).toDouble(&ok);
+        qreal value = query.value(1).toReal(&ok);
         if (date.isValid() && ok) result->append({ date, value });
         else qWarning() << "Invalid data at row " << query.at();
     }
