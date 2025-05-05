@@ -4,9 +4,9 @@
 #include <QSqlError>
 #include <QDebug>
 
-SqliteDataReader::SqliteDataReader(std::shared_ptr<IDateTimeParser> parser)
+SqliteDataReader::SqliteDataReader(std::shared_ptr<IOCContainer> ioc)
 {
-    _parser = parser;
+    _parser = ioc->GetObject<IDateTimeParser>();
 }
 
 std::shared_ptr<QVector<QPair<QDateTime, qreal>>> SqliteDataReader::ReadData(const QString& filePath)
