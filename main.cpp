@@ -9,6 +9,8 @@
 #include "DataRendering/ImpulseChartBuilder.h"
 #include "DataRendering/LineChartBuilder.h"
 #include "DataRendering/ScatterChartBuilder.h"
+#include "DependencyInjection/IOC_Contaner.h"
+#include "DataReading/DataTypeManager.h"
 
 #include <QtCharts>
 using namespace QtCharts;
@@ -16,22 +18,32 @@ using namespace QtCharts;
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
+    auto ioc = std::make_shared<IOCContainer>();
+    ioc->RegisterInstance<IOCContainer>(ioc);
+
     auto multiformatParser = std::make_shared<MultiformatDTParser>();
     multiformatParser->AddFormat("dd.MM.yyyy hh:mm");
     multiformatParser->AddFormat("dd.MM.yyyy");
 
+    auto exoticParser = std::make_shared<DateAndMinutesParser>(multiformatParser);
+
     auto aggregateParser = std::make_shared<AggregatedDTParser>();
     aggregateParser->AddParser(multiformatParser);
-
-    auto exoticParser = std::make_shared<DateAndMinutesParser>(multiformatParser);
     aggregateParser->AddParser(exoticParser);
 
-    auto sqliteReader = std::make_shared<SqliteDataReader>(aggregateParser);
+    ioc->RegisterInstance<IDateTimeParser>(aggregateParser);
+    ioc->RegisterInstance<DataTypeManager, DataTypeManager, IOCContainer>();
+
+    auto manager = ioc->GetInstance<DataTypeManager>();
+    manager->AddDataType<SqliteDataReader, IDateTimeParser>("sqlite");
+    manager->SwitchDataType("sqlite");
+
+    auto reader = ioc->GetInstance<IDataReader>();
 
     QElapsedTimer timer;
 
     timer.start(); // Запуск таймера
-    auto data = sqliteReader->ReadData("C:/Qt projects/GraphPrinter/InputData/TEMPERATURE_NOVOSIB.sqlite");
+    auto data = reader->ReadData("C:/Qt projects/GraphPrinter/InputData/TEMPERATURE_NOVOSIB.sqlite");
     qint64 elapsedMilliseconds = timer.elapsed(); // Время в наносекундах
     qDebug() << elapsedMilliseconds;
 

@@ -1,10 +1,12 @@
+#ifndef IOC_CONTAINER_H
+#define IOC_CONTAINER_H
+
 #include <functional>
 #include <iostream>
 #include <memory>
 //#include <map>
 #include <unordered_map>
 #include <string>
-using namespace std;
 
 class IOCContainer
 {
@@ -66,7 +68,7 @@ public:
 	};
 
 	template<typename T>
-	std::shared_ptr<T> GetObject() {
+    std::shared_ptr<T> GetInstance() {
 		auto typeId = GetTypeID<T>();
 		auto factoryBase = m_factories[typeId];
 		auto factory = std::static_pointer_cast<CFactory<T>>(factoryBase);
@@ -80,7 +82,7 @@ public:
 	void RegisterFunctor(
 		std::function<std::shared_ptr<TInterface>(std::shared_ptr<TS>... ts)> functor) {
 		m_factories[GetTypeID<TInterface>()] = std::make_shared<CFactory<TInterface>>(
-				[ = ] { return functor(GetObject<TS>()...); });
+                [ = ] { return functor(GetInstance<TS>()...); });
 	}
 
 	//Регистрация одного экземпляра объекта
@@ -113,6 +115,8 @@ public:
 	//Фабрика, которая будет возвращать один экземпляр
 	template<typename TInterface, typename TConcrete, typename... TArguments>
 	void RegisterInstance() {
-		RegisterInstance<TInterface>(std::make_shared<TConcrete>(GetObject<TArguments>()...));
+        RegisterInstance<TInterface>(std::make_shared<TConcrete>(GetInstance<TArguments>()...));
 	}
 };
+
+#endif //IOC_CONTAINER_H

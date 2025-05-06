@@ -8,20 +8,26 @@
 #include "DependencyInjection/IOC_Contaner.h"
 #include "DateParsing/IDateTimeParser.h"
 
-class DataTypeManager
+class DataTypeManager : public QObject
 {
     Q_OBJECT
     std::shared_ptr<IOCContainer> _ioc;
-    QHash<QString, std::function<std::shared_ptr<IDataReader>(std::shared_ptr<IOCContainer>)>> _dataTypes;
+    QHash<QString, std::function<std::shared_ptr<IDataReader>()>> _dataTypes;
+    //void AddFunctor(const QString& type, const std::function<std::shared_ptr<IDataReader>()>& functor);
 
 public:
     DataTypeManager(std::shared_ptr<IOCContainer> ioc);
-    void AddType(const QString& type, const std::function<std::shared_ptr<IDataReader>(std::shared_ptr<IOCContainer>)>& functor);
-    void RemoveType(const QString& type);
+    void RemoveDataType(const QString& type);
     QStringList GetTypes();
 
+    template<class TReader, class ...TArgs>
+    void AddDataType(const QString& type)
+    {
+        _dataTypes.insert(type, [this] () { return std::make_shared<TReader>(_ioc->GetInstance<TArgs>()...); });
+    }
+
 public slots:
-    void SwitchType(const QString& type);
+    void SwitchDataType(const QString& type);
 };
 
 #endif // DATATYPEMANAGER_H

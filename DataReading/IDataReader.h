@@ -7,7 +7,7 @@
 class IDataReader
 {
 public:
-    virtual ~IDataReader() {}
+    virtual ~IDataReader() = default;
     virtual std::shared_ptr<QVector<QPair<QDateTime, qreal>>> ReadData(const QString& filePath) = 0;
 };
 
