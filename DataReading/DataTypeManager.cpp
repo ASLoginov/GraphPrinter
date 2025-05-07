@@ -16,7 +16,7 @@ void DataTypeManager::RemoveDataType(const QString& type)
     _dataTypes.remove(type);
 }
 
-QStringList DataTypeManager::GetTypes()
+QStringList DataTypeManager::GetDataTypes()
 {
     return _dataTypes.keys();
 }

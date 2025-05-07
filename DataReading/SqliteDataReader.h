@@ -3,10 +3,11 @@
 
 #include "IDataReader.h"
 #include "DateParsing/IDateTimeParser.h"
-#include "DependencyInjection/IOC_Contaner.h"
+#include <QSqlDatabase>
 
 class SqliteDataReader : public IDataReader
 {
+    static QSqlDatabase& GetDB();
     std::shared_ptr<IDateTimeParser> _parser;
 public:
     SqliteDataReader(std::shared_ptr<IDateTimeParser> parser);

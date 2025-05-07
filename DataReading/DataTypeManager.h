@@ -13,20 +13,18 @@ class DataTypeManager : public QObject
     Q_OBJECT
     std::shared_ptr<IOCContainer> _ioc;
     QHash<QString, std::function<std::shared_ptr<IDataReader>()>> _dataTypes;
-    //void AddFunctor(const QString& type, const std::function<std::shared_ptr<IDataReader>()>& functor);
 
 public:
     DataTypeManager(std::shared_ptr<IOCContainer> ioc);
     void RemoveDataType(const QString& type);
-    QStringList GetTypes();
+    QStringList GetDataTypes();
 
     template<class TReader, class ...TArgs>
     void AddDataType(const QString& type)
     {
-        _dataTypes.insert(type, [this] () { return std::make_shared<TReader>(_ioc->GetInstance<TArgs>()...); });
+        _dataTypes.insert(type, [this]() { return std::make_shared<TReader>(_ioc->GetInstance<TArgs>()...); });
     }
 
-public slots:
     void SwitchDataType(const QString& type);
 };
 

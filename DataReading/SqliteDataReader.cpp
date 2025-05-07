@@ -1,8 +1,13 @@
 #include "SqliteDataReader.h"
-#include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+
+QSqlDatabase& SqliteDataReader::GetDB()
+{
+    static QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    return db;
+}
 
 SqliteDataReader::SqliteDataReader(std::shared_ptr<IDateTimeParser> parser)
 {
@@ -13,14 +18,9 @@ std::shared_ptr<QVector<QPair<QDateTime, qreal>>> SqliteDataReader::ReadData(con
 {
     auto result = std::make_shared<QVector<QPair<QDateTime, qreal>>>();
 
-    if (!QSqlDatabase::isDriverAvailable("QSQLITE")) {
-        qWarning() << "SQLite driver is unavailable!";
-        return result;
-    }
+    QSqlDatabase& db = GetDB();
 
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(filePath);
-
     if (!db.open()) {
         qWarning() << "Failed to open database: " << db.lastError().text();
         return result;
