@@ -11,10 +11,9 @@
 #include "DataRendering/LineChartBuilder.h"
 #include "DataRendering/ScatterChartBuilder.h"
 #include "DependencyInjection/IOC_Contaner.h"
-#include "DataReading/DataTypeManager.h"
-
-#include <QtCharts>
-using namespace QtCharts;
+#include "DependencyInjection/DataTypeManager.h"
+#include "DependencyInjection/ChartTypeManager.h"
+#include "DataProcessing/DataProcessing.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -33,45 +32,21 @@ int main(int argc, char *argv[]) {
     aggregateParser->AddParser(exoticParser);
 
     ioc->RegisterInstance<IDateTimeParser>(aggregateParser);
+
     ioc->RegisterInstance<DataTypeManager, DataTypeManager, IOCContainer>();
+    auto dataManager = ioc->GetInstance<DataTypeManager>();
+    dataManager->AddDataType<SqliteDataReader, IDateTimeParser>("sqlite");
 
-    auto manager = ioc->GetInstance<DataTypeManager>();
-    manager->AddDataType<SqliteDataReader, IDateTimeParser>("sqlite");
-    manager->SwitchDataType("sqlite");
+    ioc->RegisterInstance<ChartTypeManager, ChartTypeManager, IOCContainer>();
+    auto chartManager = ioc->GetInstance<ChartTypeManager>();
+    chartManager->AddChartType<LineChartBuilder>("Line");
+    chartManager->AddChartType<ScatterChartBuilder>("Scatter");
+    chartManager->AddChartType<ImpulseChartBuilder>("Impulse");
 
-    ioc->RegisterFactory<IChartBuilder, LineChartBuilder>();
+    ioc->RegisterInstance<DataProcessing, DataProcessing, IOCContainer>();
 
-    /*
-    auto reader = ioc->GetInstance<IDataReader>();
-
-    QElapsedTimer timer;
-
-    timer.start(); // Запуск таймера
-    auto data = reader->ReadData("C:/Qt projects/GraphPrinter/InputData/TEMPERATURE_NOVOSIB.sqlite");
-    qint64 elapsedMilliseconds = timer.elapsed(); // Время в наносекундах
-    qDebug() << elapsedMilliseconds;
-
-    auto builder = std::make_shared<LineChartBuilder>();
-
-    timer.start();
-    QChart* chart = builder->GetChart(data);
-    elapsedMilliseconds = timer.elapsed(); // Время в наносекундах
-    qDebug() << elapsedMilliseconds;
-
-    timer.start();
-    QChartView* chartView = new QChartView(chart);
-    chartView->setRenderHint(QPainter::Antialiasing);
-    elapsedMilliseconds = timer.elapsed(); // Время в наносекундах
-    qDebug() << elapsedMilliseconds;
-
-    timer.start();
-    chartView->show();
-    elapsedMilliseconds = timer.elapsed(); // Время в наносекундах
-    qDebug() << elapsedMilliseconds;
-*/
-
-    MainWindow w(ioc);
-    w.show();
+    ioc->RegisterInstance<MainWindow, MainWindow, IOCContainer>();
+    ioc->GetInstance<MainWindow>()->show();
 
     return app.exec();
 }

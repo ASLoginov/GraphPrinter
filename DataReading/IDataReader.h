@@ -8,7 +8,7 @@ class IDataReader
 {
 public:
     virtual ~IDataReader() = default;
-    virtual std::shared_ptr<QVector<QPair<QDateTime, qreal>>> ReadData(const QString& filePath) = 0;
+    virtual QVector<QPair<QDateTime, qreal>> ReadData(const QString& filePath) = 0;
 };
 
 #endif // IDATAREADER_H

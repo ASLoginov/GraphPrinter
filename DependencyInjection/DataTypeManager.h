@@ -4,9 +4,8 @@
 #include <QObject>
 #include <QHash>
 #include <QString>
-#include "IDataReader.h"
-#include "DependencyInjection/IOC_Contaner.h"
-#include "DateParsing/IDateTimeParser.h"
+#include "DataReading/IDataReader.h"
+#include "IOC_Contaner.h"
 
 class DataTypeManager : public QObject
 {
@@ -15,7 +14,7 @@ class DataTypeManager : public QObject
     QHash<QString, std::function<std::shared_ptr<IDataReader>()>> _dataTypes;
 
 public:
-    DataTypeManager(std::shared_ptr<IOCContainer> ioc);
+    DataTypeManager(std::shared_ptr<IOCContainer> ioc, QObject *parent = nullptr);
     void RemoveDataType(const QString& type);
     QStringList GetDataTypes();
 

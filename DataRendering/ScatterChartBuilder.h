@@ -7,7 +7,7 @@ class ScatterChartBuilder : public IChartBuilder
 {
 public:
     ScatterChartBuilder();
-    virtual QtCharts::QChart *GetChart(std::shared_ptr<QVector<QPair<QDateTime, qreal>>> data);
+    virtual QtCharts::QChart *BuildChart(const QVector<QPair<QDateTime, qreal>>& data);
 };
 
 #endif // SCATTERCHARTBUILDER_H

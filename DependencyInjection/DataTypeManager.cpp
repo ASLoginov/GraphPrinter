@@ -1,15 +1,9 @@
 #include "DataTypeManager.h"
-#include "SqliteDataReader.h"
 
-DataTypeManager::DataTypeManager(std::shared_ptr<IOCContainer> ioc) : QObject()
+DataTypeManager::DataTypeManager(std::shared_ptr<IOCContainer> ioc, QObject *parent) : QObject(parent)
 {
     _ioc = ioc;
 }
-
-//void DataTypeManager::AddFunctor(const QString& type, const std::function<std::shared_ptr<IDataReader>()>& functor)
-//{
-//    _dataTypes.insert(type, functor);
-//}
 
 void DataTypeManager::RemoveDataType(const QString& type)
 {

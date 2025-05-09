@@ -10,12 +10,12 @@ ImpulseChartBuilder::ImpulseChartBuilder()
 
 }
 
-QtCharts::QChart* ImpulseChartBuilder::GetChart(std::shared_ptr<QVector<QPair<QDateTime, qreal>>> data)
+QtCharts::QChart* ImpulseChartBuilder::BuildChart(const QVector<QPair<QDateTime, qreal>>& data)
 {
     double minY = std::numeric_limits<double>::max();
     double maxY = std::numeric_limits<double>::min();
-    if (!data->isEmpty()) {
-        for (const auto &pair : *data) {
+    if (!data.isEmpty()) {
+        for (const auto &pair : data) {
             minY = qMin(minY, pair.second);
             maxY = qMax(maxY, pair.second);
         }
@@ -24,7 +24,7 @@ QtCharts::QChart* ImpulseChartBuilder::GetChart(std::shared_ptr<QVector<QPair<QD
     QLineSeries* series = new QLineSeries();
     series->setPen(QPen(QColor("green"), 2));
 
-    for (const auto& pair : *data) {
+    for (const auto& pair : data) {
         const qreal x = pair.first.toMSecsSinceEpoch();
         const qreal y = pair.second;
 
@@ -45,7 +45,7 @@ QtCharts::QChart* ImpulseChartBuilder::GetChart(std::shared_ptr<QVector<QPair<QD
     axisX->setTickCount(8);
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
-    axisX->setRange(data->first().first, data->last().first);
+    axisX->setRange(data.first().first, data.last().first);
 
     QValueAxis* axisY = new QValueAxis();
     //axisY->setTitleText("Уровень");

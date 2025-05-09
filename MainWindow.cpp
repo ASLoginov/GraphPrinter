@@ -2,8 +2,9 @@
 #include <QBoxLayout>
 #include <QSplitter>
 #include <QFileSystemModel>
-#include "DataReading/DataTypeManager.h"
-#include "DataRendering/IChartBuilder.h"
+#include "DependencyInjection/DataTypeManager.h"
+#include "DependencyInjection/ChartTypeManager.h"
+#include "DataProcessing/DataProcessing.h"
 
 MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWidget(parent)
 {
@@ -13,16 +14,20 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
     header->setAlignment(Qt::AlignRight);
     vLayout->addLayout(header);
 
-    _styleSelection = new QComboBox();
-    header->addWidget(_styleSelection);
+    auto styleSelection = new QComboBox();
+    auto chartManager = ioc->GetInstance<ChartTypeManager>();
+    QStringList charts = chartManager->GetChartTypes();
+    styleSelection->addItems(charts);
+    header->addWidget(styleSelection);
+    chartManager->SwitchChartType(styleSelection->currentText());
 
-    _blackAndWhiteBox = new QCheckBox("B&W");
-    header->addWidget(_blackAndWhiteBox);
+    auto blackAndWhiteBox = new QCheckBox("BW");
+    header->addWidget(blackAndWhiteBox);
 
-    _printButton = new QPushButton("Print");
-    header->addWidget(_printButton);
+    auto printButton = new QPushButton("Print");
+    header->addWidget(printButton);
 
-    QFileSystemModel* fileModel = new QFileSystemModel(this);
+    auto fileModel = new QFileSystemModel(this);
     fileModel->setRootPath("");
 
     auto dataManager = ioc->GetInstance<DataTypeManager>();
@@ -33,44 +38,54 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
     fileModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     fileModel->setNameFilterDisables(false);
 
-    _filesWindow = new QTreeView();
-    _filesWindow->setModel(fileModel);
-    _filesWindow->setColumnHidden(1, true);
-    _filesWindow->setColumnHidden(3, true);
+    auto filesWindow = new QTreeView();
+    filesWindow->setModel(fileModel);
+    filesWindow->setColumnHidden(1, true);
+    filesWindow->setColumnHidden(3, true);
     QModelIndex startIndex = fileModel->index(QDir::currentPath());
     QModelIndex parentIndex = startIndex.parent();
     while (parentIndex.isValid()) {
-        _filesWindow->expand(parentIndex);
+        filesWindow->expand(parentIndex);
         parentIndex = parentIndex.parent();
     }
-    _filesWindow->expand(startIndex);
-    _filesWindow->scrollTo(startIndex);
+    filesWindow->expand(startIndex);
+    filesWindow->scrollTo(startIndex);
 
-    connect(_filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
-            dataManager.get(), [=] (const QItemSelection& selected, const QItemSelection& ) {
-        dataManager->SwitchDataType(QFileInfo(fileModel->filePath(selected.indexes().first())).suffix());
-    });
-
-    _chartWindow = new QtCharts::QChartView();
-    _chartWindow->setRenderHint(QPainter::Antialiasing);
-
-    connect(_filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
-            _chartWindow, [=] (const QItemSelection& selected, const QItemSelection& ) {
-        QString file = fileModel->filePath(selected.indexes().first());
-        auto data = ioc->GetInstance<IDataReader>()->ReadData(file);
-        _chartWindow->setChart(ioc->GetInstance<IChartBuilder>()->GetChart(data));
-    });
+    auto chartWindow = new QtCharts::QChartView();
+    chartWindow->setRenderHint(QPainter::Antialiasing);
 
     QSplitter* splitter = new QSplitter();
     vLayout->addWidget(splitter);
-    splitter->addWidget(_filesWindow);
-    splitter->addWidget(_chartWindow);
+    splitter->addWidget(filesWindow);
+    splitter->addWidget(chartWindow);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
 
     setMinimumSize(600, 300);
-    _chartWindow->resize(400, 0);
-    _filesWindow->resize(400, 0);
-    _filesWindow->setColumnWidth(0, 350);
-    resize(1000, 600);
+    filesWindow->resize(450, 0);
+    filesWindow->setColumnWidth(0, 350);
+    resize(1200, 800);
+
+    auto processing = ioc->GetInstance<DataProcessing>();
+
+    connect(styleSelection, &QComboBox::currentTextChanged, chartManager.get(), &ChartTypeManager::SwitchChartType);
+
+    connect(filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this, fileModel] (const QItemSelection& selected, const QItemSelection&) {
+        QFileInfo file(fileModel->filePath(selected.indexes().first()));
+        if (file.isFile()) emit dataTypeChanged(file.suffix());
+    });
+    connect(this, &MainWindow::dataTypeChanged, dataManager.get(), &DataTypeManager::SwitchDataType);
+
+    connect(filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [this, fileModel] (const QItemSelection& selected, const QItemSelection&) {
+        QFileInfo file(fileModel->filePath(selected.indexes().first()));
+        if (file.isFile()) emit fileSelectionChanged(file.absoluteFilePath());
+    });
+
+    connect(this, &MainWindow::fileSelectionChanged, processing.get(), &DataProcessing::MakeData);
+    connect(processing.get(), &DataProcessing::newChart, chartWindow, &QtCharts::QChartView::setChart);
+    connect(styleSelection, &QComboBox::currentTextChanged, processing.get(), &DataProcessing::MakeChart);
 }
 
 MainWindow::~MainWindow() {}
