@@ -22,7 +22,7 @@ QtCharts::QChart *LineChartBuilder::BuildChart(const QVector<QPair<QDateTime, qr
     }
 
     QLineSeries* series = new QLineSeries();
-    series->setPen(QPen(QColor("blue"), 1));
+    series->setPen(QPen(QColor(Qt::darkBlue), 1));
 
     for (const auto& pair : data) {
         const qreal x = pair.first.toMSecsSinceEpoch();

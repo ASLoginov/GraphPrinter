@@ -22,9 +22,9 @@ QChart *ScatterChartBuilder::BuildChart(const QVector<QPair<QDateTime, qreal>>& 
     }
 
     QScatterSeries* series = new QScatterSeries();
-    series->setMarkerSize(3);
-    series->setBorderColor("red");
-    series->setColor("red");
+    series->setMarkerSize(2);
+    series->setBorderColor(Qt::darkMagenta);
+    series->setColor(Qt::darkMagenta);
 
     for (const auto& pair : data) {
         const qreal x = pair.first.toMSecsSinceEpoch();

@@ -22,7 +22,7 @@ QtCharts::QChart* ImpulseChartBuilder::BuildChart(const QVector<QPair<QDateTime,
     }
 
     QLineSeries* series = new QLineSeries();
-    series->setPen(QPen(QColor("green"), 2));
+    series->setPen(QPen(QColor(Qt::darkCyan), 2));
 
     for (const auto& pair : data) {
         const qreal x = pair.first.toMSecsSinceEpoch();
