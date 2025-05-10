@@ -3,6 +3,8 @@
 #include <QSplitter>
 #include <QFileSystemModel>
 #include <QGraphicsColorizeEffect>
+#include <QFileDialog>
+#include <QPdfWriter>
 #include "DependencyInjection/DataTypeManager.h"
 #include "DependencyInjection/ChartTypeManager.h"
 #include "DataProcessing/DataProcessing.h"
@@ -15,21 +17,21 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
     header->setAlignment(Qt::AlignRight);
     vLayout->addLayout(header);
 
-    auto styleSelection = new QComboBox();
+    _styleSelection = new QComboBox();
 
     auto chartManager = ioc->GetInstance<ChartTypeManager>();
-    connect(styleSelection, &QComboBox::currentTextChanged, chartManager.get(), &ChartTypeManager::SwitchChartType);
+    connect(_styleSelection, &QComboBox::currentTextChanged, chartManager.get(), &ChartTypeManager::SwitchChartType);
 
     QStringList charts = chartManager->GetChartTypes();
-    styleSelection->addItems(charts);
-    header->addWidget(styleSelection);
-    chartManager->SwitchChartType(styleSelection->currentText());
+    _styleSelection->addItems(charts);
+    header->addWidget(_styleSelection);
+    chartManager->SwitchChartType(_styleSelection->currentText());
 
-    auto bWBox = new QCheckBox("BW");
-    header->addWidget(bWBox);
+    _bWBox = new QCheckBox("BW");
+    header->addWidget(_bWBox);
 
-    auto printButton = new QPushButton("Print");
-    header->addWidget(printButton);
+    _printButton = new QPushButton("Print");
+    header->addWidget(_printButton);
 
     auto fileModel = new QFileSystemModel(this);
     fileModel->setRootPath("");
@@ -44,58 +46,68 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
     fileModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     fileModel->setNameFilterDisables(false);
 
-    auto filesWindow = new QTreeView();
-    filesWindow->setModel(fileModel);
-    filesWindow->setColumnHidden(1, true);
-    filesWindow->setColumnHidden(3, true);
+    _filesWindow = new QTreeView();
+    _filesWindow->setModel(fileModel);
+    _filesWindow->setColumnHidden(1, true);
+    _filesWindow->setColumnHidden(3, true);
     QModelIndex startIndex = fileModel->index(QDir::currentPath());
     QModelIndex parentIndex = startIndex.parent();
     while (parentIndex.isValid()) {
-        filesWindow->expand(parentIndex);
+        _filesWindow->expand(parentIndex);
         parentIndex = parentIndex.parent();
     }
-    filesWindow->expand(startIndex);
-    filesWindow->scrollTo(startIndex);
+    _filesWindow->expand(startIndex);
+    _filesWindow->scrollTo(startIndex);
 
-    connect(filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(_filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this, fileModel] (const QItemSelection& selected, const QItemSelection&) {
         QFileInfo file(fileModel->filePath(selected.indexes().first()));
         if (file.isFile()) emit dataTypeChanged(file.suffix());
     });
 
-    connect(filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
+    connect(_filesWindow->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this, fileModel] (const QItemSelection& selected, const QItemSelection&) {
         QFileInfo file(fileModel->filePath(selected.indexes().first()));
         if (file.isFile()) emit fileSelectionChanged(file.absoluteFilePath());
     });
 
-    auto chartWindow = new QtCharts::QChartView();
-    chartWindow->setRenderHint(QPainter::Antialiasing);
+    _chartWindow = new QtCharts::QChartView();
+    _chartWindow->setRenderHint(QPainter::Antialiasing);
 
     auto processing = ioc->GetInstance<DataProcessing>();
     connect(this, &MainWindow::fileSelectionChanged, processing.get(), &DataProcessing::MakeData);
-    connect(processing.get(), &DataProcessing::newChart, chartWindow, &QtCharts::QChartView::setChart);
-    connect(styleSelection, &QComboBox::currentTextChanged, processing.get(), &DataProcessing::MakeChart);
+    connect(processing.get(), &DataProcessing::newChart, _chartWindow, &QtCharts::QChartView::setChart);
+    connect(_styleSelection, &QComboBox::currentTextChanged, processing.get(), &DataProcessing::MakeChart);
 
-    connect(bWBox, &QCheckBox::stateChanged, this, [chartWindow] (int state) {
+    connect(_bWBox, &QCheckBox::stateChanged, _chartWindow, [this] (int state) {
         if (state) {
             auto effect = new QGraphicsColorizeEffect();
             effect->setColor(Qt::black);
-            chartWindow->viewport()->setGraphicsEffect(effect);
+            _chartWindow->viewport()->setGraphicsEffect(effect);
         }
-        else chartWindow->viewport()->setGraphicsEffect(nullptr);
+        else _chartWindow->viewport()->setGraphicsEffect(nullptr);
+    });
+
+    connect(_printButton, &QPushButton::clicked, _chartWindow, [this] {
+        QString fileName = QFileDialog::getSaveFileName(this, "Print to PDF", "result.pdf", "PDF (*.pdf)");
+        if (fileName.isEmpty()) return;
+        QPdfWriter printer(fileName);
+        QPainter painter(&printer);
+        _chartWindow->chart()->setGraphicsEffect(_chartWindow->viewport()->graphicsEffect());
+        _chartWindow->render(&painter);
+        _chartWindow->chart()->setGraphicsEffect(nullptr);
     });
 
     QSplitter* splitter = new QSplitter();
     vLayout->addWidget(splitter);
-    splitter->addWidget(filesWindow);
-    splitter->addWidget(chartWindow);
+    splitter->addWidget(_filesWindow);
+    splitter->addWidget(_chartWindow);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
 
     setMinimumSize(600, 300);
-    filesWindow->resize(450, 0);
-    filesWindow->setColumnWidth(0, 350);
+    _filesWindow->resize(450, 0);
+    _filesWindow->setColumnWidth(0, 350);
     resize(1200, 800);
 }
 

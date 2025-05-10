@@ -13,11 +13,11 @@ class MainWindow : public QWidget
 {
     Q_OBJECT
 
-//    QTreeView* _filesWindow;
-//    QtCharts::QChartView* _chartWindow;
-//    QComboBox* _styleSelection;
-//    QPushButton* _printButton;
-//    QCheckBox* _blackAndWhiteBox;
+    QTreeView* _filesWindow;
+    QtCharts::QChartView* _chartWindow;
+    QComboBox* _styleSelection;
+    QPushButton* _printButton;
+    QCheckBox* _bWBox;
 
 public:
     MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent = nullptr);
