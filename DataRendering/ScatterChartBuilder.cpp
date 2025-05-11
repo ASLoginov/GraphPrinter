@@ -22,7 +22,7 @@ QChart *ScatterChartBuilder::BuildChart(const QVector<QPair<QDateTime, qreal>>& 
     }
 
     QScatterSeries* series = new QScatterSeries();
-    series->setMarkerSize(2);
+    series->setMarkerSize(3);
     series->setBorderColor(Qt::darkMagenta);
     series->setColor(Qt::darkMagenta);
 
