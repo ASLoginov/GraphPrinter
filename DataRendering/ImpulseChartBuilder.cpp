@@ -22,15 +22,15 @@ QtCharts::QChart* ImpulseChartBuilder::BuildChart(const QVector<QPair<QDateTime,
     }
 
     QLineSeries* series = new QLineSeries();
-    series->setPen(QPen(QColor(Qt::darkCyan), 2));
+    series->setPen(QPen(QColor(Qt::darkCyan), 3));
 
     for (const auto& pair : data) {
         const qreal x = pair.first.toMSecsSinceEpoch();
         const qreal y = pair.second;
 
-        series->append(x, minY - 1);
+        series->append(x, minY - 100);
         series->append(x, y);
-        series->append(x, minY - 1);
+        series->append(x, minY - 100);
     }
 
     QChart* chart = new QChart();

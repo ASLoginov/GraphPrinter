@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include "DataReading/SqliteDataReader.h"
+#include "DataReading/JsonDataReader.h"
 #include "DataReading/DateParsing/AggregatedDTParser.h"
 #include "DataReading/DateParsing/DateAndMinutesParser.h"
 #include "DataReading/DateParsing/MultiformatDTParser.h"
@@ -21,21 +22,25 @@ int main(int argc, char *argv[]) {
     auto ioc = std::make_shared<IOCContainer>();
     ioc->RegisterInstance<IOCContainer>(ioc);
 
-    auto multiformatParser = std::make_shared<MultiformatDTParser>();
+    ioc->RegisterInstance<MultiformatDTParser, MultiformatDTParser>();
+    auto multiformatParser = ioc->GetInstance<MultiformatDTParser>();
     multiformatParser->AddFormat("dd.MM.yyyy hh:mm");
     multiformatParser->AddFormat("dd.MM.yyyy");
+    multiformatParser->AddFormat("yyyy-MM-dd hh:mm");
+    multiformatParser->AddFormat("yyyy-MM-dd");
 
-    auto exoticParser = std::make_shared<DateAndMinutesParser>(multiformatParser);
+    ioc->RegisterFactory<DateAndMinutesParser, DateAndMinutesParser, MultiformatDTParser>();
 
-    auto aggregateParser = std::make_shared<AggregatedDTParser>();
-    aggregateParser->AddParser(multiformatParser);
-    aggregateParser->AddParser(exoticParser);
-
+    ioc->RegisterInstance<AggregatedDTParser, AggregatedDTParser>();
+    auto aggregateParser = ioc->GetInstance<AggregatedDTParser>();
+    aggregateParser->AddParser(ioc->GetInstance<MultiformatDTParser>());
+    aggregateParser->AddParser(ioc->GetInstance<DateAndMinutesParser>());
     ioc->RegisterInstance<IDateTimeParser>(aggregateParser);
 
     ioc->RegisterInstance<DataTypeManager, DataTypeManager, IOCContainer>();
     auto dataManager = ioc->GetInstance<DataTypeManager>();
     dataManager->AddDataType<SqliteDataReader, IDateTimeParser>("sqlite");
+    dataManager->AddDataType<JsonDataReader, IDateTimeParser>("json");
 
     ioc->RegisterInstance<ChartTypeManager, ChartTypeManager, IOCContainer>();
     auto chartManager = ioc->GetInstance<ChartTypeManager>();
