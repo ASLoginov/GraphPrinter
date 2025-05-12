@@ -14,7 +14,7 @@ class DataProcessing : public QObject
     std::shared_ptr<IOCContainer> _ioc;
 
 public:
-    DataProcessing(std::shared_ptr<IOCContainer> ioc, QObject *parent = nullptr);
+    DataProcessing(std::shared_ptr<IOCContainer> ioc, QObject* parent = nullptr);
     void MakeData(const QString& filePath);
     void MakeChart();
 

@@ -32,7 +32,7 @@ QVector<QPair<QDateTime, qreal>> JsonDataReader::ReadData(const QString& filePat
     for (int i = 0; i < jsonArr.size(); i++) {
         auto obj = jsonArr[i].toObject();
         QDateTime date;
-        double value;
+        double value = 0;
         bool ok = false;
         for (const QJsonValue& jsonVal : obj) {
             if (jsonVal.isString()) date = _parser->ParseDateTime(jsonVal.toString());
