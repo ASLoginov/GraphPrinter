@@ -10,7 +10,6 @@ class DataProcessing : public QObject
     Q_OBJECT
 
     QVector<QPair<QDateTime, qreal>> _data;
-    QtCharts::QChart* _chart = nullptr;
     std::shared_ptr<IOCContainer> _ioc;
 
 public:
