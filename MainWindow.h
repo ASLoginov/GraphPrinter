@@ -20,7 +20,7 @@ class MainWindow : public QWidget
     QCheckBox* _bWBox;
 
 public:
-    MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent = nullptr);
+    MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget* parent = nullptr);
     ~MainWindow();
 
 signals:

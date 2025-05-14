@@ -16,7 +16,7 @@ SqliteDataReader::SqliteDataReader(std::shared_ptr<IDateTimeParser> parser)
 
 QVector<QPair<QDateTime, qreal>> SqliteDataReader::ReadData(const QString& filePath)
 {
-    auto result = QVector<QPair<QDateTime, qreal>>();
+    QVector<QPair<QDateTime, qreal>> result;
 
     QSqlDatabase& db = GetDB();
 

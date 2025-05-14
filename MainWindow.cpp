@@ -76,7 +76,11 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
 
     auto processing = ioc->GetInstance<DataProcessing>();
     connect(this, &MainWindow::fileSelectionChanged, processing.get(), &DataProcessing::MakeData);
-    connect(processing.get(), &DataProcessing::newChart, _chartWindow, &QtCharts::QChartView::setChart);
+    connect(processing.get(), &DataProcessing::newChart, _chartWindow, [this] (QtCharts::QChart* chart) {
+        auto oldChart = _chartWindow->chart();
+        _chartWindow->setChart(chart);
+        oldChart->deleteLater();
+    });
     connect(_styleSelection, &QComboBox::currentTextChanged, processing.get(), &DataProcessing::MakeChart);
 
     connect(_bWBox, &QCheckBox::stateChanged, _chartWindow, [this] (int state) {
@@ -93,8 +97,10 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
         if (fileName.isEmpty()) return;
         QPdfWriter printer(fileName);
         QPainter painter(&printer);
-        _chartWindow->chart()->setGraphicsEffect(_chartWindow->viewport()->graphicsEffect());
+        auto effect = _chartWindow->viewport()->graphicsEffect();
+        _chartWindow->chart()->setGraphicsEffect(effect);
         _chartWindow->render(&painter);
+        _chartWindow->viewport()->setGraphicsEffect(effect);
         _chartWindow->chart()->setGraphicsEffect(nullptr);
     });
 

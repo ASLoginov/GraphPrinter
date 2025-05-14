@@ -13,6 +13,7 @@ SOURCES += \
     DataReading/DateParsing/AggregatedDTParser.cpp \
     DataReading/DateParsing/DateAndMinutesParser.cpp \
     DataReading/DateParsing/MultiformatDTParser.cpp \
+    DataReading/JsonDataReader.cpp \
     DataReading/SqliteDataReader.cpp \
     DataRendering/ImpulseChartBuilder.cpp \
     DataRendering/LineChartBuilder.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     DataReading/DateParsing/IDateTimeParser.h \
     DataReading/DateParsing/MultiformatDTParser.h \
     DataReading/IDataReader.h \
+    DataReading/JsonDataReader.h \
     DataReading/SqliteDataReader.h \
     DataRendering/IChartBuilder.h \
     DataRendering/ImpulseChartBuilder.h \
