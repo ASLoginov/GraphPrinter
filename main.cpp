@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
     ioc->RegisterInstance<ChartTypeManager, ChartTypeManager, IOCContainer>();
     auto chartManager = ioc->GetInstance<ChartTypeManager>();
     chartManager->AddChartType<LineChartBuilder>("Line");
-    chartManager->AddChartType<ScatterChartBuilder>("Scatter");
     chartManager->AddChartType<ImpulseChartBuilder>("Impulse");
+    chartManager->AddChartType<ScatterChartBuilder>("Scatter");
 
     ioc->RegisterInstance<DataProcessing, DataProcessing, IOCContainer>();
 
