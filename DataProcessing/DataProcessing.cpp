@@ -13,7 +13,10 @@ void DataProcessing::MakeData(const QString &filePath)
 
 void DataProcessing::MakeChart()
 {
-    if (_data.isEmpty()) return;
+    if (_data.isEmpty()) {
+        emit newChart(new QtCharts::QChart());
+        return;
+    }
     auto chart = _ioc->GetInstance<IChartBuilder>()->BuildChart(_data);
     chart->setParent(this);
     emit newChart(chart);
