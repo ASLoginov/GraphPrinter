@@ -8,6 +8,8 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QLabel>
+#include <qstackedwidget.h>
 
 class MainWindow : public QWidget
 {
@@ -18,6 +20,8 @@ class MainWindow : public QWidget
     QComboBox* _styleSelection;
     QPushButton* _printButton;
     QCheckBox* _bWBox;
+    QLabel* _invalidDataMessage;
+    QStackedWidget* _stacked;
 
 public:
     MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget* parent = nullptr);

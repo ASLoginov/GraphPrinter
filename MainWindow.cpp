@@ -76,12 +76,18 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
 
     auto processing = ioc->GetInstance<DataProcessing>();
     connect(this, &MainWindow::fileSelectionChanged, processing.get(), &DataProcessing::MakeData);
+
     connect(processing.get(), &DataProcessing::newChart, _chartWindow, [this] (QtCharts::QChart* chart) {
         auto oldChart = _chartWindow->chart();
         _chartWindow->setChart(chart);
         oldChart->deleteLater();
+        if (chart->series().isEmpty()) _stacked->setCurrentWidget(_invalidDataMessage);
+        else _stacked->setCurrentWidget(_chartWindow);
     });
-    connect(_styleSelection, &QComboBox::currentTextChanged, processing.get(), &DataProcessing::MakeChart);
+
+    connect(_styleSelection, &QComboBox::currentTextChanged, processing.get(), [this, processing] {
+        if (!_chartWindow->chart()->series().isEmpty()) processing->MakeChart();
+    });
 
     connect(_bWBox, &QCheckBox::stateChanged, _chartWindow, [this] (int state) {
         if (state) {
@@ -104,10 +110,21 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
         _chartWindow->chart()->setGraphicsEffect(nullptr);
     });
 
+    _invalidDataMessage = new QLabel("Invalid data");
+    _invalidDataMessage->setAlignment(Qt::AlignCenter);
+    QFont font = _invalidDataMessage->font();
+    font.setPointSize(20);
+    _invalidDataMessage->setFont(font);
+
+    _stacked = new QStackedWidget;
+    _stacked->addWidget(_invalidDataMessage);
+    _stacked->addWidget(_chartWindow);
+    _stacked->setCurrentWidget(_chartWindow);
+
     QSplitter* splitter = new QSplitter();
     vLayout->addWidget(splitter);
     splitter->addWidget(_filesWindow);
-    splitter->addWidget(_chartWindow);
+    splitter->addWidget(_stacked);
     splitter->setStretchFactor(0, 0);
     splitter->setStretchFactor(1, 1);
 
@@ -117,4 +134,7 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
     resize(1200, 800);
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow()
+{
+    if (_invalidDataMessage) _invalidDataMessage->deleteLater();
+}
