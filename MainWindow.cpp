@@ -99,15 +99,17 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
     });
 
     connect(_printButton, &QPushButton::clicked, _chartWindow, [this] {
-        QString fileName = QFileDialog::getSaveFileName(this, "Print to PDF", "result.pdf", "PDF (*.pdf)");
-        if (fileName.isEmpty()) return;
-        QPdfWriter printer(fileName);
-        QPainter painter(&printer);
-        auto effect = _chartWindow->viewport()->graphicsEffect();
-        _chartWindow->chart()->setGraphicsEffect(effect);
-        _chartWindow->render(&painter);
-        _chartWindow->viewport()->setGraphicsEffect(effect);
-        _chartWindow->chart()->setGraphicsEffect(nullptr);
+        if (!_chartWindow->chart()->series().isEmpty()) {
+            QString fileName = QFileDialog::getSaveFileName(this, "Print to PDF", "result.pdf", "PDF (*.pdf)");
+            if (fileName.isEmpty()) return;
+            QPdfWriter printer(fileName);
+            QPainter painter(&printer);
+            auto effect = _chartWindow->viewport()->graphicsEffect();
+            _chartWindow->chart()->setGraphicsEffect(effect);
+            _chartWindow->render(&painter);
+            _chartWindow->viewport()->setGraphicsEffect(effect);
+            _chartWindow->chart()->setGraphicsEffect(nullptr);
+        }
     });
 
     _invalidDataMessage = new QLabel("Invalid data");
