@@ -10,15 +10,15 @@ LineChartBuilder::LineChartBuilder()
 
 }
 
-QtCharts::QChart *LineChartBuilder::BuildChart(const QVector<QPair<QDateTime, qreal>>& data)
+QChart *LineChartBuilder::BuildChart(const QVector<QPair<QDateTime, qreal>>& data)
 {
+    if (data.isEmpty()) return new QChart();
+
     double minY = std::numeric_limits<double>::max();
     double maxY = std::numeric_limits<double>::min();
-    if (!data.isEmpty()) {
-        for (const auto &pair : data) {
-            minY = qMin(minY, pair.second);
-            maxY = qMax(maxY, pair.second);
-        }
+    for (const auto &pair : data) {
+        minY = qMin(minY, pair.second);
+        maxY = qMax(maxY, pair.second);
     }
 
     QLineSeries* series = new QLineSeries();
