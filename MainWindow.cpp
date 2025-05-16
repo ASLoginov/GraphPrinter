@@ -138,5 +138,5 @@ MainWindow::MainWindow(std::shared_ptr<IOCContainer> ioc, QWidget *parent) : QWi
 
 MainWindow::~MainWindow()
 {
-    if (_invalidDataMessage) _invalidDataMessage->deleteLater();
+
 }
